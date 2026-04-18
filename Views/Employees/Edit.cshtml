@@ -1,4 +1,4 @@
-@model EmployeeManagement.Models.Employee
+@model EmployeeManagement.Models.EmployeeUpdateDto
 
 @{
     ViewData["Title"] = "Edit Employee";
@@ -7,7 +7,7 @@
 <h1>Edit Employee</h1>
 
 <form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="id" value="@ViewData["EmployeeId"]" />
     <partial name="_Form" model="Model" />
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>

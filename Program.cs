@@ -14,6 +14,9 @@ builder.Logging.AddConsole();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("EmployeeDb"));
 
+// Register services
+builder.Services.AddScoped<EmployeeManagement.Services.IEmployeeService, EmployeeManagement.Services.EmployeeService>();
+
 var app = builder.Build();
 
 // Seed initial data
