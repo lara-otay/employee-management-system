@@ -1,0 +1,31 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Visual Studio code
+.vscode/
+
+# NuGet
+*.nupkg
+.nuget/
+
+# ASP.NET Core
+appsettings*.json
+wwwroot/lib/
+
+# EF Migrations
+Migrations/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

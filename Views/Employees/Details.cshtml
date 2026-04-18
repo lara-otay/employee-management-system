@@ -1,0 +1,26 @@
+@model EmployeeManagement.Models.Employee
+
+@{
+    ViewData["Title"] = "Employee Details";
+}
+
+<h1>Employee Details</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@Model.Department</h6>
+        <p class="card-text">
+            <strong>Email:</strong> @Model.Email <br />
+            <strong>Phone:</strong> @Model.Phone <br />
+            <strong>Status:</strong> @(Model.IsActive ? "Active" : "Inactive")<br />
+            <strong>Created:</strong> @Model.CreatedAt.ToLocalTime().ToString("g")<br />
+            @if (Model.UpdatedAt.HasValue)
+            {
+                <strong>Updated:</strong> @Model.UpdatedAt.Value.ToLocalTime().ToString("g")
+            }
+        </p>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Edit</a>
+        <a asp-action="Index" class="btn btn-link">Back to list</a>
+    </div>
+</div>

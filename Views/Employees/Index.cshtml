@@ -1,0 +1,118 @@
+@model EmployeeManagement.Models.EmployeeListViewModel
+
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<h1>Employees</h1>
+
+<form method="get" class="row g-2 mb-3">
+    <input type="hidden" name="viewMode" value="@Model.ViewMode" />
+    <div class="col-md-3">
+        <input type="text" name="searchName" value="@Model.SearchName" class="form-control" placeholder="Search name" />
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="searchEmail" value="@Model.SearchEmail" class="form-control" placeholder="Search email" />
+    </div>
+    <div class="col-md-2">
+        <input type="text" name="department" value="@Model.Department" class="form-control" placeholder="Department" />
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">Any status</option>
+            <option value="Active" selected="@(Model.Status == "Active")">Active</option>
+            <option value="Inactive" selected="@(Model.Status == "Inactive")">Inactive</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-secondary ms-1">Reset</a>
+    </div>
+</form>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">Add Employee</a>
+    <a asp-action="Export" class="btn btn-outline-secondary ms-2" asp-route-searchName="@Model.SearchName" asp-route-searchEmail="@Model.SearchEmail" asp-route-department="@Model.Department" asp-route-status="@Model.Status">Export CSV</a>
+    <div class="btn-group ms-2" role="group" aria-label="View mode">
+        <a asp-action="Index" asp-route-viewMode="list" asp-route-searchName="@Model.SearchName" asp-route-searchEmail="@Model.SearchEmail" asp-route-department="@Model.Department" asp-route-status="@Model.Status" class="btn btn-outline-primary @(Model.ViewMode == "list" ? "active" : "")">List</a>
+        <a asp-action="Index" asp-route-viewMode="card" asp-route-searchName="@Model.SearchName" asp-route-searchEmail="@Model.SearchEmail" asp-route-department="@Model.Department" asp-route-status="@Model.Status" class="btn btn-outline-primary @(Model.ViewMode == "card" ? "active" : "")">Card</a>
+    </div>
+</div>
+
+@if (Model.ViewMode == "card")
+{
+    <div class="row">
+        @foreach (var e in Model.Employees)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@e.Name</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@e.Department</h6>
+                        <p class="card-text">
+                            <strong>Email:</strong> @e.Email <br />
+                            <strong>Phone:</strong> @e.Phone <br />
+                            <strong>Status:</strong> @(e.IsActive ? "Active" : "Inactive")
+                        </p>
+                        <a asp-action="Details" asp-route-id="@e.Id" class="card-link">Details</a>
+                        <a asp-action="Edit" asp-route-id="@e.Id" class="card-link">Edit</a>
+                    <form asp-action="ToggleStatus" asp-route-id="@e.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-warning">@(e.IsActive ? "Deactivate" : "Activate")</button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.Employees)
+            {
+                <tr>
+                    <td>@e.Name</td>
+                    <td>@e.Email</td>
+                    <td>@e.Phone</td>
+                    <td>@e.Department</td>
+                    <td>@(e.IsActive ? "Active" : "Inactive")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                        <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@e.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        <form asp-action="ToggleStatus" asp-route-id="@e.Id" method="post" class="d-inline ms-1">
+                            <button type="submit" class="btn btn-sm btn-outline-warning">@(e.IsActive ? "Deactivate" : "Activate")</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <div>
+        Showing @((Model.Page - 1) * Model.PageSize + 1) - @((Model.Page - 1) * Model.PageSize + Model.Employees.Count()) of @Model.TotalItems
+    </div>
+    <nav>
+        <ul class="pagination mb-0">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.Page - 1)&pageSize=@Model.PageSize&searchName=@Model.SearchName&searchEmail=@Model.SearchEmail&department=@Model.Department&status=@Model.Status">Previous</a>
+            </li>
+            <li class="page-item @(Model.TotalItems <= Model.Page * Model.PageSize ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.Page + 1)&pageSize=@Model.PageSize&searchName=@Model.SearchName&searchEmail=@Model.SearchEmail&department=@Model.Department&status=@Model.Status">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
