@@ -17,7 +17,7 @@ namespace EmployeeManagement.Services
             _db = db;
         }
 
-        private IQueryable<Employee> ApplyFilters(IQueryable<Employee> query, string? searchName, string? searchEmail, string? department, string? status)
+        private IQueryable<Employee> ApplyFilters(IQueryable<Employee> query, string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status)
         {
             if (!string.IsNullOrWhiteSpace(searchName))
             {
@@ -34,18 +34,19 @@ namespace EmployeeManagement.Services
                 query = query.Where(e => e.Department != null && e.Department.Contains(department));
             }
 
-            if (!string.IsNullOrWhiteSpace(status))
+            if (status == EmployeeManagement.Models.EmployeeStatus.Active)
             {
-                if (string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase))
-                    query = query.Where(e => e.IsActive);
-                else if (string.Equals(status, "Inactive", StringComparison.OrdinalIgnoreCase))
-                    query = query.Where(e => !e.IsActive);
+                query = query.Where(e => e.IsActive);
+            }
+            else if (status == EmployeeManagement.Models.EmployeeStatus.Inactive)
+            {
+                query = query.Where(e => !e.IsActive);
             }
 
             return query;
         }
 
-        public async Task<(IEnumerable<Employee> Items, int Total)> GetPagedAsync(string? searchName, string? searchEmail, string? department, string? status, int page, int pageSize)
+        public async Task<(IEnumerable<Employee> Items, int Total)> GetPagedAsync(string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status, int page, int pageSize)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 5;
@@ -62,7 +63,7 @@ namespace EmployeeManagement.Services
             return (items, total);
         }
 
-        public async Task<IEnumerable<Employee>> GetFilteredAsync(string? searchName, string? searchEmail, string? department, string? status)
+        public async Task<IEnumerable<Employee>> GetFilteredAsync(string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status)
         {
             var query = _db.Employees.AsNoTracking().AsQueryable();
             query = ApplyFilters(query, searchName, searchEmail, department, status);

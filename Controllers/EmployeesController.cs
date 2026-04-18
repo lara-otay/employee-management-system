@@ -22,7 +22,8 @@ namespace EmployeeManagement.Controllers
         {
             _logger.LogInformation("Listing employees: name={searchName} email={searchEmail} department={department} status={status} page={page} size={pageSize}", searchName, searchEmail, department, status, page, pageSize);
 
-            var (items, total) = await _service.GetPagedAsync(searchName, searchEmail, department, status, page, pageSize);
+            var statusEnum = ParseStatus(status);
+            var (items, total) = await _service.GetPagedAsync(searchName, searchEmail, department, statusEnum, page, pageSize);
 
             var vm = new EmployeeListViewModel
             {
@@ -44,7 +45,8 @@ namespace EmployeeManagement.Controllers
         public async Task<IActionResult> Export(string? searchName, string? searchEmail, string? department, string? status)
         {
             _logger.LogInformation("Exporting employees CSV: name={searchName} email={searchEmail} department={department} status={status}", searchName, searchEmail, department, status);
-            var items = await _service.GetFilteredAsync(searchName, searchEmail, department, status);
+            var statusEnum = ParseStatus(status);
+            var items = await _service.GetFilteredAsync(searchName, searchEmail, department, statusEnum);
 
             var sb = new StringBuilder();
             sb.AppendLine("Id,Name,Email,Phone,Department,Status,CreatedAt,UpdatedAt");
@@ -66,6 +68,14 @@ namespace EmployeeManagement.Controllers
             var ok = await _service.ToggleStatusAsync(id);
             if (!ok) return NotFound();
             return RedirectToAction(nameof(Index));
+        }
+
+        private EmployeeManagement.Models.EmployeeStatus ParseStatus(string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status)) return EmployeeManagement.Models.EmployeeStatus.Any;
+            if (string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase)) return EmployeeManagement.Models.EmployeeStatus.Active;
+            if (string.Equals(status, "Inactive", StringComparison.OrdinalIgnoreCase)) return EmployeeManagement.Models.EmployeeStatus.Inactive;
+            return EmployeeManagement.Models.EmployeeStatus.Any;
         }
 
         // GET: Employees/Details/5
