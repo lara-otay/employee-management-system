@@ -8,5 +8,7 @@ namespace EmployeeManagement.Models
         public string? Phone { get; set; }
         public string? Department { get; set; }
         public bool IsActive { get; set; }
+        public System.DateTime CreatedAt { get; set; }
+        public System.DateTime? UpdatedAt { get; set; }
     }
 }

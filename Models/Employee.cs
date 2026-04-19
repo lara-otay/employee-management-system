@@ -21,7 +21,7 @@ namespace EmployeeManagement.Models
         [StringLength(100)]
         public string? Department { get; set; }
 
-        // True = Active, False = Inactive
+        
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

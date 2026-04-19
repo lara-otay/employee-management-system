@@ -46,7 +46,7 @@ namespace EmployeeManagement.Services
             return query;
         }
 
-        public async Task<(IEnumerable<Employee> Items, int Total)> GetPagedAsync(string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status, int page, int pageSize)
+        public async Task<(IEnumerable<EmployeeDto> Items, int Total)> GetPagedAsync(string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status, int page, int pageSize)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 5;
@@ -55,27 +55,62 @@ namespace EmployeeManagement.Services
             query = ApplyFilters(query, searchName, searchEmail, department, status);
 
             var total = await query.CountAsync();
-            var items = await query.OrderBy(e => e.Name)
+            var entities = await query.OrderBy(e => e.Name)
                                    .Skip((page - 1) * pageSize)
                                    .Take(pageSize)
                                    .ToListAsync();
 
+            var items = entities.Select(e => new EmployeeDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Email = e.Email,
+                Phone = e.Phone,
+                Department = e.Department,
+                IsActive = e.IsActive,
+                CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt
+            }).ToList();
+
             return (items, total);
         }
 
-        public async Task<IEnumerable<Employee>> GetFilteredAsync(string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status)
+        public async Task<IEnumerable<EmployeeDto>> GetFilteredAsync(string? searchName, string? searchEmail, string? department, EmployeeManagement.Models.EmployeeStatus status)
         {
             var query = _db.Employees.AsNoTracking().AsQueryable();
             query = ApplyFilters(query, searchName, searchEmail, department, status);
-            return await query.OrderBy(e => e.Name).ToListAsync();
+            var entities = await query.OrderBy(e => e.Name).ToListAsync();
+            return entities.Select(e => new EmployeeDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Email = e.Email,
+                Phone = e.Phone,
+                Department = e.Department,
+                IsActive = e.IsActive,
+                CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt
+            });
         }
 
-        public async Task<Employee?> GetByIdAsync(int id)
+        public async Task<EmployeeDto?> GetByIdAsync(int id)
         {
-            return await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+            var e = await _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+            if (e == null) return null;
+            return new EmployeeDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Email = e.Email,
+                Phone = e.Phone,
+                Department = e.Department,
+                IsActive = e.IsActive,
+                CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt
+            };
         }
 
-        public async Task<Employee> CreateAsync(EmployeeCreateDto dto)
+        public async Task<EmployeeDto> CreateAsync(EmployeeCreateDto dto)
         {
             var employee = new Employee
             {
@@ -89,7 +124,17 @@ namespace EmployeeManagement.Services
 
             _db.Employees.Add(employee);
             await _db.SaveChangesAsync();
-            return employee;
+            return new EmployeeDto
+            {
+                Id = employee.Id,
+                Name = employee.Name,
+                Email = employee.Email,
+                Phone = employee.Phone,
+                Department = employee.Department,
+                IsActive = employee.IsActive,
+                CreatedAt = employee.CreatedAt,
+                UpdatedAt = employee.UpdatedAt
+            };
         }
 
         public async Task<bool> UpdateAsync(int id, EmployeeUpdateDto dto)
